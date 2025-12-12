@@ -119,31 +119,31 @@ function initFirebase() {
 }
 
 async function loadWeather() {
-    if (!navigator.geolocation) {
-        console.warn("Geolocation not supported.");
-        return;
-    }
+    const lat = 38.9072;
+    const lon = -77.0369;
 
-    navigator.geolocation.getCurrentPosition(async pos => {
-        const lat = pos.coords.latitude;
-        const lon = pos.coords.longitude;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=sunrise,sunset&timezone=auto`;
 
-        // Fetch weather from Open-Meteo
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=sunrise,sunset&timezone=auto`;
-        
+    try {
         const res = await fetch(url);
         const data = await res.json();
 
+        // temperatura
         document.getElementById("weather-temp").textContent =
             Math.round(data.current_weather.temperature);
 
-        document.getElementById("sunrise").textContent = data.daily.sunrise[0].split("T")[1];
-        document.getElementById("sunset").textContent = data.daily.sunset[0].split("T")[1];
-
+        // lokalizacja tekstowa
         document.getElementById("weather-location").textContent =
-            `Lat: ${lat.toFixed(2)}, Lon: ${lon.toFixed(2)}`;
+            "Washington, DC";
 
-        // Simple icon
+        // wschód i zachód słońca
+        document.getElementById("sunrise").textContent =
+            data.daily.sunrise[0].split("T")[1];
+
+        document.getElementById("sunset").textContent =
+            data.daily.sunset[0].split("T")[1];
+
+        // ikonka pogody
         const code = data.current_weather.weathercode;
         const icon =
             code === 0 ? "☀️" :
@@ -152,9 +152,13 @@ async function loadWeather() {
             "⛈️";
 
         document.getElementById("weather-icon").textContent = icon;
-    });
+
+    } catch (err) {
+        console.error("Weather fetch error:", err);
+    }
 }
 
 // run weather on startup
 loadWeather();
+
 
