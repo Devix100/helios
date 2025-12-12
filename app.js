@@ -39,6 +39,12 @@ document.querySelectorAll(".nav-link").forEach(a => {
     });
 });
 
+function round3(value) {
+    if (value === null || value === undefined || value === "") return "--";
+    if (isNaN(value)) return value; // do not modify timestamps or strings
+    return Math.round(Number(value) * 1000) / 1000;
+}
+
 /* ---------------- HAMBURGER MENU ---------------- */
 
 document.getElementById("hamburger").addEventListener("click", () => {
@@ -151,3 +157,4 @@ async function loadWeather() {
 
 // run weather on startup
 loadWeather();
+
