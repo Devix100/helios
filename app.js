@@ -33,6 +33,9 @@ function showPage(pageId) {
 document.querySelectorAll(".nav-link").forEach(a => {
     a.addEventListener("click", () => {
         showPage(a.dataset.page);
+
+        // Close hamburger menu on mobile
+        document.getElementById("nav-links").classList.remove("active");
     });
 });
 
@@ -106,4 +109,5 @@ function initFirebase() {
     });
 
     console.log("Firebase connected.");
+
 }
