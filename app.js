@@ -89,19 +89,19 @@ function initFirebase() {
         const d = snapshot.val();
         if (!d) return;
 
-        document.getElementById("ht-eff").textContent = d.ht_eff ?? "--";
-        document.getElementById("ht-v").textContent = d.ht_v ?? "--";
-        document.getElementById("rpm-ht").textContent = d.rpm_ht ?? "--";
-        document.getElementById("mt-eff").textContent = d.mt_eff ?? "--";
-        document.getElementById("mt-v").textContent = d.mt_v ?? "--";
-        document.getElementById("rpm-mt").textContent = d.rpm_mt ?? "--";
-        document.getElementById("teg-c").textContent = d.teg_c ?? "--";
-		document.getElementById("teg-p").textContent = d.teg_p ?? "--";
-		document.getElementById("teg-v").textContent = d.teg_v ?? "--";
-		document.getElementById("total-v").textContent = d.total_v ?? "--";
-		document.getElementById("temp-hot").textContent = d.temp_hot ?? "--";
-		document.getElementById("temp-mid").textContent = d.temp_mid ?? "--";
-		document.getElementById("sys-eff").textContent = d.sys_eff ?? "--";
+        document.getElementById("ht-eff").textContent = round3(d.ht_eff) ?? "--";
+        document.getElementById("ht-v").textContent = round3(d.ht_v) ?? "--";
+        document.getElementById("rpm-ht").textContent = round3(d.rpm_ht) ?? "--";
+        document.getElementById("mt-eff").textContent = round3(d.mt_eff) ?? "--";
+        document.getElementById("mt-v").textContent = round3(d.mt_v) ?? "--";
+        document.getElementById("rpm-mt").textContent = round3(d.rpm_mt) ?? "--";
+        document.getElementById("teg-c").textContent = round3(d.teg_c) ?? "--";
+		document.getElementById("teg-p").textContent = round3(d.teg_p) ?? "--";
+		document.getElementById("teg-v").textContent = round3(d.teg_v) ?? "--";
+		document.getElementById("total-v").textContent = round3(d.total_v) ?? "--";
+		document.getElementById("temp-hot").textContent = round3(d.temp_hot) ?? "--";
+		document.getElementById("temp-mid").textContent = round3(d.temp_mid) ?? "--";
+		document.getElementById("sys-eff").textContent = round3(d.sys_eff) ?? "--";
 		document.getElementById("timestamp-").textContent = d.timestamp ?? "--";
 
         // Update homepage main power
@@ -111,3 +111,43 @@ function initFirebase() {
     console.log("Firebase connected.");
 
 }
+
+async function loadWeather() {
+    if (!navigator.geolocation) {
+        console.warn("Geolocation not supported.");
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(async pos => {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+
+        // Fetch weather from Open-Meteo
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=sunrise,sunset&timezone=auto`;
+        
+        const res = await fetch(url);
+        const data = await res.json();
+
+        document.getElementById("weather-temp").textContent =
+            Math.round(data.current_weather.temperature);
+
+        document.getElementById("sunrise").textContent = data.daily.sunrise[0].split("T")[1];
+        document.getElementById("sunset").textContent = data.daily.sunset[0].split("T")[1];
+
+        document.getElementById("weather-location").textContent =
+            `Lat: ${lat.toFixed(2)}, Lon: ${lon.toFixed(2)}`;
+
+        // Simple icon
+        const code = data.current_weather.weathercode;
+        const icon =
+            code === 0 ? "☀️" :
+            code < 3 ? "⛅" :
+            code < 60 ? "🌧️" :
+            "⛈️";
+
+        document.getElementById("weather-icon").textContent = icon;
+    });
+}
+
+// run weather on startup
+loadWeather();
